@@ -10,7 +10,7 @@
 #include <semaphore.h>
 #include <unistd.h>
 
-#define N 2   // 消费者或者生产者的数目
+#define N 4   // 消费者或者生产者的数目
 #define M 10 // 缓冲数目
 
 int in = 0;   // 生产者放置产品的位置
@@ -43,13 +43,15 @@ void *product()
    {
       // 用sleep的数量可以调节生产和消费的速度，便于观察
       sleep(1);
-      //sleep(1);
-     
+      // printf("----- product%d  before sem_wait(&empty_sem)  -------\n",id);
       sem_wait(&empty_sem);
+      // printf("----- product%d  after  sem_wait(&empty_sem) -------\n",id);
+      // printf("----- product%d  before  sem_wait(&mutex) -------\n",id);
       pthread_mutex_lock(&mutex);
+      // printf("----- product%d  after sem_wait(&mutex)  -------\n",id);
      
       in = in % M;
-      printf("product%d in %d. like: \t", id, in);
+      printf("product%d in position %d. like: \t", id, in);
      
       buff[in] = 1;  
       print();  
@@ -74,7 +76,7 @@ void *consumer()
       pthread_mutex_lock(&mutex);
      
       out = out % M;
-      printf("consumer%d in %d. like: \t", id, out);
+      printf("consumer%d in position %d. like: \t", id, out);
      
       buff[out] = 0;
       print();
@@ -118,7 +120,7 @@ int main()
       }
    }
    //创建N个消费者线程
-   for(i = 0; i < N; i++)
+   for(i = 0; i < N/4; i++)
    {
       ret[i] = pthread_create(&id2[i], NULL, consumer, NULL);
       if(ret[i] != 0)
