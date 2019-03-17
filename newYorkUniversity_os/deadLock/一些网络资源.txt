@@ -1,0 +1,5 @@
+银行家算法图解：
+https://blog.csdn.net/weixin_39478524/article/details/80604876
+
+银行家算法python代码：
+https://www.geeksforgeeks.org/program-bankers-algorithm-set-1-safety-algorithm/
