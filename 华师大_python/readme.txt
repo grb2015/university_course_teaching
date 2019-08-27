@@ -1,0 +1,2 @@
+turtle是一个python绘图库
+类似的还有TkInter

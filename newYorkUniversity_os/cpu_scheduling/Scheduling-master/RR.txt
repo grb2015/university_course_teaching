@@ -1,0 +1,161 @@
+	public void RR(){
+		int time = 0,count = 0,cpuBT = 0, quantum = 2;
+		double cpuutil = 0;	 	
+		double ioutil = 0;	
+		boolean check = true;
+		ArrayList<Process> runList = new ArrayList<Process>();
+		for(Process k : sList){
+			runList.add(k);
+		}
+		Process running = null;
+		ArrayList<Process> readyTable = new ArrayList<Process>();
+		blocktime = new int[sList.size()];
+		cputime = new int[sList.size()];
+		for (int i = 0; i < sList.size(); i++){
+			blocktime[i] = -1;
+			cputime[i] = 0;
+		}
+		if (verbose){
+			System.out.print("Before Cycle    " + time + ":");
+			for (int i = 0; i < runList.size(); i++){
+				System.out.print("unstarted 0" + "\t");
+			}
+		}
+		System.out.print("\n");
+		while (check){
+			for (int i = 0; i < blocktime.length; i++){
+				if (blocktime[i] == 0){
+					readyTable.add(runList.get(i));
+					blocktime[i] = -1;
+					runList.get(i).setState(1);
+				}
+			}
+			for (Process k : runList){
+				if (k.getA() == time){
+					readyTable.add(k);
+					k.setState(1);
+				}
+			}
+			time ++;
+			if (running != null){
+				running.decreaseC();
+				cpuutil ++;
+			}else if(!readyTable.isEmpty()){
+				int min = 99999;
+				// the following step choose the earliest arrival process, but the sample output didn't follow this rule
+				Process temp = null;
+				for (Process p : readyTable){
+					if ((runList.indexOf(p)) < min){
+						temp = p;
+						min = runList.indexOf(p);
+					}
+				}
+				running = readyTable.get(0);
+				readyTable.remove(readyTable.indexOf(running));
+				running.setState(2);
+				if (cputime[runList.indexOf(running)] == 0){
+					int temp1 = randomOS(running.getB());
+					if (temp1 > running.getC()){
+						temp1 = running.getC();
+					}
+					cputime[runList.indexOf(running)] = temp1;
+					if (temp1 > quantum) cpuBT = quantum;
+					else cpuBT = temp1;
+				}else{
+					if (cputime[runList.indexOf(running)] > 2){
+						cpuBT = 2;
+					}else{
+						cpuBT = cputime[runList.indexOf(running)];
+					}
+				}
+				running.decreaseC();
+				cpuutil ++;
+			}
+			if (verbose){
+				System.out.print("Before Cycle    " + time + ":");
+				for (Process k: runList){
+					if (k.getState() == 0){
+						System.out.print("unstarted 0" + "\t");
+					}else if(k.getState() == 1){
+						System.out.print("ready     0" + "\t");
+						k.incWT();
+					}else if(k.getState() == 2){
+						System.out.print("running   " + cpuBT + "\t");
+					}else if(k.getState() == 3){
+						System.out.print("blocked   " + blocktime[runList.indexOf(k)] + "\t");
+					}else{
+						System.out.print("finished  0" + "\t");
+					}
+					
+				}
+				System.out.print("\n");
+			}
+			
+			for (int i = 0; i < blocktime.length; i++){
+				if (blocktime[i] > 0){
+					blocktime[i] --;
+					runList.get(i).incIOT();
+					ioutil ++;
+				}
+			}
+			if (cpuBT > 0){
+				cpuBT --;
+				cputime[runList.indexOf(running)] --;
+				if (cpuBT == 0){
+					if (cputime[runList.indexOf(running)] == 0){
+						Process temp = running;
+						if (temp.getC() > 0){
+							temp.setState(3);
+							int temp1 = randomOS(temp.getIO());
+							blocktime[runList.indexOf(temp)] = temp1;
+							running = null;
+						}else{
+							temp.setft(time);
+							temp.setState(4);
+							running = null;
+							count++;
+						}
+					}else{
+						Process temp = running;
+						temp.setState(1);
+						running = null;
+						readyTable.add(temp);
+					}
+				}
+			}
+			if(count == runList.size()) check = false;
+		}
+		System.out.println();
+		System.out.println("The algorithm used is ROUND ROBIN");
+		System.out.println();
+		double avgWait = 0, avgTurn = 0, max = -1;
+		for(Process p:runList){
+			if (p.getft() > max) max = p.getft();
+			avgTurn += p.getft() - p.getA();  // 每个进程的finish_time -  arrrive_time 就得到运行这个进程的花费时间
+			avgWait += p.getWT();
+			System.out.println("Process " + runList.indexOf(p) + ":");
+			System.out.println("\t" +"(A,B,C,IO) = (" + p.getA() + "," + p.getB() + "," + p.getintialC() +"," + p.getIO() +")");
+			System.out.println("\t" + "Finishing time: " + p.getft());
+			System.out.println("\t" + "Turnaround time: " + (p.getft() - p.getA()));
+			System.out.println("\t" + "I/O time: " + p.getIOT());
+			System.out.println("\t" + "Waiting time: " + p.getWT());
+		}
+		System.out.println();
+		avgWait = avgWait / runList.size();
+		avgTurn = avgTurn / runList.size();
+		System.out.println("Summary Data: ");
+		// 表明该进程结束的时间,Q1它与avgTurn有什么区别?基本山是等同的。
+		System.out.println("\t" + "Finishing time: " + max);
+		// CPU使用率 : 比如100ms中,CPU使用了70ms,CPU等待IO花了30ms 则CPU使用率为 70%
+		System.out.println("\t" + "CPU Utilization: " + cpuutil/max);
+		// IO使用时间
+		System.out.println("\t" + "IO Utilization: " + ioutil/max);
+		// 吞吐量 = 单位时间内可完成的进程数量(这里是100ms)
+		System.out.println("\t" + "Troughput " + (runList.size() / max) * 100 +" processes per hundread cycles");
+		// 平均周转时间 = 该进程运行了多长时间 (即从进程提交到进程完成的时间段称为周转时间)
+		System.out.println("\t" + "Average Turnaround time: " + avgTurn);
+		// 平均等待时间  ： 在就绪队列中等待所花费的时间
+		System.out.println("\t" + "Average Wait time: " + avgWait);
+		System.out.println();
+	}
+	
