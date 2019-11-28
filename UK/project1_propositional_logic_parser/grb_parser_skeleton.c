@@ -4,18 +4,6 @@
  
 int Fsize=50; /* max string length of formulas*/
 int inputs=10;
- 
-/*put all your functions here.  You will need
-1.
-int parse(char *g) which returns 1 if a proposition, 2 if neg, 3 if binary, ow 0
-Of course you will almost certainly need other functions.
- 
-For binary formulas you will also need functions that return the first part and the second part of the binary formula.
- 
-char *partone(char *g)
- 
-char *parttwo(char *g)
-*/
 int notOk;
  
 void prop(char *g,int *i)
@@ -70,10 +58,19 @@ int isFormula(char*g){
     fmla(g,&i);
     return(i == strlen(g) && notOk == 0);
 }
+
+/************************************************************************
+breif		: 	parse 
+intput		:	char* 	g  	 name to parse
+returns 	:	int	            
+				0	not a formula
+            	1	proposition	formula
+            	2	negation formula
+            	3.	binary formula
+*************************************************************************/
 int parse(char *g)
 {
     int formulaVal=isFormula(g);
- 
     if(formulaVal)
         if(g[0]=='-')
             return(2);
@@ -122,11 +119,6 @@ char *partone(char*g)
                 part1[j-1]=g[j];
             }
             part1[i-1]='\0';
-           /*strncpy(part1, g + 1, i - 1);
-            if((strlen(part1)) %2==0) {
-                part1[strlen(part1)-1]='\0';
-            }
-            //else part1[strlen(part1)]='\0';*/
             break;
         }
     }
@@ -148,17 +140,6 @@ char *parttwo(char *g)
                 len++;
             }
             part2[len]='\0';
-            /*strncpy(part2,(g+i+1),(sizeOfWord-i-2));
-            if((sizeOfWord-i-2)%2==0) {
-                part2[strlen(part2)-1]='\0';
-               // strncpy(part2,(g+i+1),(sizeOfWord-i-2));
-               
-            }
-            else
-            {
-               // part2[strlen(part2)]='\0';
-            }
-            */
            
             break;
         }
@@ -167,19 +148,6 @@ char *parttwo(char *g)
     return part2;
 }
 int main(){ /*input 10 strings from "input.txt" */
- 
-    /*parenCounter("((p^q)^(qvr))");
-    printf(partone("((p^q)^(qvr))"));
-    printf("\n");
-    printf(parttwo("((p^q)^(qvr))"));*/
- 
-    /*
-     * prop ::= p|q|r.
-       BC ::= v | b | >
-       .
-        ::= prop | − fmla | (fmla BC fmla).
-     * */
- 
  
     /* reads from input.txt, writes to output.txt*/
     char *name = malloc(Fsize);
@@ -202,9 +170,6 @@ int main(){ /*input 10 strings from "input.txt" */
             default:fprintf(fpout, "What the f***!  ");
        }
     }
- 
- 
- 
     fclose(fp);
     fclose(fpout);
     free(name);
