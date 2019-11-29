@@ -1,36 +1,61 @@
+/*
+bug :
+	name = p  输出 :p is a binary formula. The first part is  and the second part is 不正确
+	name = pvr 输出 :pvr is a binary formula. The first part is  and the second part is 不正确
+*/
 #include <stdio.h>
 #include <string.h>   /* for all the new-fangled string functions */
 #include <stdlib.h>     /* malloc, free, rand */
  
 int Fsize=50; /* max string length of formulas*/
-int inputs=10;
-int notOk;
- 
+//int inputs=10;
+int inputs=10;  // grb
+int gNotOk;
+
+/************************************************************************
+breif		: 	判断propositional logic 字符串 g中第i个字符串是否为pqr中其中某一个
+intput		:	g  ：[string]	 propositional logic 字符串
+				i  : [int]		 第i个字符
+returns 	:	无    
+
+note		:	如果g[i]不是pqr之一,则可以判断不是propositional formula 
+				如果g[i]是pqr之一,则对i所在的地址的值加1
+*************************************************************************/
+
 void prop(char *g,int *i)
 {
     if(strchr("pqr", g[*i])){
         *i+=1;
     }
     else{
-        notOk=1;
+        gNotOk=1;
     }
 }
- 
+
+/* 参考prop注释 */
 void BC(char *g, int *i)
 {
     if(strchr("v^>", g[*i])){
         *i+=1;
     }
     else{
-        notOk=1;
+        gNotOk=1;
     }
 }
- 
+
+/************************************************************************
+breif		: 	判断g[i:-1]是否为 propositional formula 
+intput		:	g  ：[string]	 propositional logic 字符串
+				i  : [int]		 第i个字符 注意传入参数为地址
+returns 	:	无    
+
+note		:	虽然无返回值,但却对全局变量gNotOk进行操作了 , gNotOk标志是否为propositional logic
+*************************************************************************/
+
 void fmla(char *g, int *i)
 {
-    if(g[*i]=='-')
-    {
- 
+	printf("g = %s , *i = %d\n",g,*i);
+    if(g[*i]=='-'){		// 如果第一个字符为符号,则判断g[i+1:-1]
         *i+=1;
         fmla(g,i);
     }
@@ -45,23 +70,31 @@ void fmla(char *g, int *i)
             *i+=1;
         }
         else {
-            notOk=1;
+            gNotOk=1;
         }
     }
     else prop(g,i);
 }
- 
+
+/************************************************************************
+breif		: 	判断是否为命题公式(不细分是negation还是binary formula)
+intput		:	char* 	g  	 待判断的命题逻辑字符串
+returns 	:	bool	            
+*************************************************************************/
+
 int isFormula(char*g){
  
     int i = 0;
-    notOk = 0;
+    gNotOk = 0;
     fmla(g,&i);
-    return(i == strlen(g) && notOk == 0);
+	printf("strlen(g) = %d  ",strlen(g));
+    //return(i == strlen(g) && gNotOk == 0);
+	return gNotOk == 0;
 }
 
 /************************************************************************
-breif		: 	parse 
-intput		:	char* 	g  	 name to parse
+breif		: 	命题公式的类型(细分是negation还是binary formula)
+intput		:	char* 	g  	 待判断的命题逻辑字符串
 returns 	:	int	            
 				0	not a formula
             	1	proposition	formula
@@ -70,17 +103,21 @@ returns 	:	int
 *************************************************************************/
 int parse(char *g)
 {
-    int formulaVal=isFormula(g);
-    if(formulaVal)
+    int formulaVal = isFormula(g);
+    if(formulaVal)	
         if(g[0]=='-')
             return(2);
         else
             return(3);
-    else return formulaVal;
+    else 
+		return formulaVal;
 }
  
 int parenCount[];
  
+/*
+    brief :     为parenCount赋值
+ */
 void parenCounter (char*g)
 {
     int sizeOfWord=strlen(g);
@@ -102,6 +139,10 @@ void parenCounter (char*g)
         else
             parenCount[i] = prevValue;
     }
+    for(i=0;i<sizeOfWord;i++)
+    {
+        printf("parenCount[i] = %d \n",parenCount[i]);
+    }
  
 }
 char *partone(char*g)
@@ -112,9 +153,10 @@ char *partone(char*g)
  
     for(i = 0; i < sizeOfWord; i++)
     {
-        if(strchr("v^>", g[i]) && parenCount[i]==1)
+        if(strchr("v^>", g[i]) && parenCount[i]==1)     // parenCount[i]==1 是 part1 和 part2的分界点
         {
-            for(int j = 1; j<i;j++)
+	        int j ;
+            for(j = 1; j<i;j++)
             {
                 part1[j-1]=g[j];
             }
@@ -134,7 +176,8 @@ char *parttwo(char *g)
         if(strchr("v^>", g[i]) && parenCount[i] == 1)
         {
             int len=0;
-            for(int j=i+1;j<sizeOfWord-1;j++)
+	        int j = 0;
+            for(j=i+1;j<sizeOfWord-1;j++)
             {
                 part2[j-i-1]=g[j];
                 len++;
@@ -160,14 +203,32 @@ int main(){ /*input 10 strings from "input.txt" */
     for(j=0;j<inputs;j++)
     {
         fscanf(fp, "%s",name);//read formula
-        printf("%s\n",name);
-        switch (parse(name))
+        printf("name  == %s \n ",name);
+		int rt = parse(name);
+		printf("rt = %d  ",rt);
+        switch (rt)
         {
-            case(0): fprintf(fpout, "%s is not a formula.  \n", name);break;
-            case(1): fprintf(fpout, "%s is a proposition. \n ", name);break;
-            case(2): fprintf(fpout, "%s is a negation.  \n", name);break;
-            case(3):parenCounter(name);fprintf(fpout, "%s is a binary formula. The first part is %s and the second part is %s  \n", name,partone(name),parttwo(name) );break;
-            default:fprintf(fpout, "What the f***!  ");
+            case(0): 
+				printf("%s is not a formula.  \n\n\n", name);
+				fprintf(fpout, "%s is not a formula.  \n", name);
+				break;
+            case(1): 
+				printf("%s is a proposition. \n\n\n", name);
+				fprintf(fpout, "%s is a proposition. \n ", name);
+				break;
+            case(2): 
+				printf("%s is a negation.  \n\n\n", name);
+				fprintf(fpout, "%s is a negation.  \n", name);
+				break;
+            case(3):
+				parenCounter(name);
+                //int len = sizeof(parenCount) /sizeof(int);
+                //printf("len = %d",len);
+				printf("%s is a binary formula. The first part is %s and the second part is %s  \n\n\n", name,partone(name),parttwo(name) );
+				fprintf(fpout, "%s is a binary formula. The first part is %s and the second part is %s  \n", name,partone(name),parttwo(name) );
+				break;
+            default:
+				fprintf(fpout, "What the f***!  ");
        }
     }
     fclose(fp);

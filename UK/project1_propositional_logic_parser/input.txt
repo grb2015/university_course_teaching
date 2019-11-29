@@ -8,3 +8,5 @@
 (-qv(p>q))
 (p(^q))
 ((p^q)vr)
+pvr
+p
