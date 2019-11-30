@@ -9,11 +9,24 @@ bug :
  
 int Fsize=50; /* max string length of formulas*/
 //int inputs=10;
-int inputs=10;  // grb
+int inputs=1;  // grb
 int gNotOk;
+ 
+int gRecursionDepth = 0 ;   // 递归深度
 
+int DEBUG = 1;	
+
+void printRecursionInfo(char * funName,char c){
+    if(DEBUG){
+        int j = 0;
+        for(j = 0 ;j <= gRecursionDepth ;j++){
+            printf("  ");
+        }
+        printf("        call %s('%c')  gRecursionDepth = %d  \n",funName,c,gRecursionDepth);
+    }
+}
 /************************************************************************
-breif		: 	判断propositional logic 字符串 g中第i个字符串是否为pqr中其中某一个
+breif		: 	判断 g[i] 是否为pqr中其中某一个
 intput		:	g  ：[string]	 propositional logic 字符串
 				i  : [int]		 第i个字符
 returns 	:	无    
@@ -24,6 +37,7 @@ note		:	如果g[i]不是pqr之一,则可以判断不是propositional formula
 
 void prop(char *g,int *i)
 {
+    printRecursionInfo("prop",g[*i]);   // rbg added for debug 
     if(strchr("pqr", g[*i])){
         *i+=1;
     }
@@ -35,6 +49,7 @@ void prop(char *g,int *i)
 /* 参考prop注释 */
 void BC(char *g, int *i)
 {
+    printRecursionInfo("BC",g[*i]); // rbg added for debug 
     if(strchr("v^>", g[*i])){
         *i+=1;
     }
@@ -49,23 +64,45 @@ intput		:	g  ：[string]	 propositional logic 字符串
 				i  : [int]		 第i个字符 注意传入参数为地址
 returns 	:	无    
 
-note		:	虽然无返回值,但却对全局变量gNotOk进行操作了 , gNotOk标志是否为propositional logic
+note		:	
+                1. 虽然无返回值,但却对全局变量gNotOk进行操作了 , gNotOk标志是否为propositional logic
 *************************************************************************/
 
 void fmla(char *g, int *i)
-{
-	printf("g = %s , *i = %d\n",g,*i);
-    if(g[*i]=='-'){		// 如果第一个字符为符号,则判断g[i+1:-1]
+{	
+	if(DEBUG){
+		int j = 0;
+        gRecursionDepth += 1;
+		for(j = 0 ;j <= gRecursionDepth ;j++){
+			printf("  ");
+		}
+        
+		printf("------ fmla  begin ---------  ");
+        printf("gRecursionDepth = %d  ",gRecursionDepth);
+		printf("g[%d:%d] = %s , *i = %d \n",*i,strlen(g)-1,g+*i,*i);
+		
+	}
+
+    // switch (expression)
+    // {
+    // case /* constant-expression */:
+    //     /* code */
+    //     break;
+    
+    // default:
+    //     break;
+    // }
+    
+    if(g[*i]=='-'){		//  第一个字符为负号 递归
         *i+=1;
         fmla(g,i);
     }
-    else if(g[*i]=='(')
+    else if(g[*i]=='(') // 第一个字符为左括号 递归
     {
         *i+=1;
         fmla(g,i);
         BC(g,i);
         fmla(g,i);
- 
         if(g[*i]==')'){
             *i+=1;
         }
@@ -73,7 +110,19 @@ void fmla(char *g, int *i)
             gNotOk=1;
         }
     }
-    else prop(g,i);
+    else {  // 第一个字符既不为负号，也不为括号, 则必须是pqr之一
+        prop(g,i);
+    }
+
+	if(DEBUG){
+		int j = 0;
+		for(j = 0 ;j <= gRecursionDepth ;j++){
+			printf("  ");
+		}
+		printf("------ fmla  end   ---------  ");
+        printf("gRecursionDepth = %d  \n",gRecursionDepth);
+        gRecursionDepth -= 1 ;
+	}
 }
 
 /************************************************************************
