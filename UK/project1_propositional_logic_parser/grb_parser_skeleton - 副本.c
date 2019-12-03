@@ -1,7 +1,7 @@
 /*
 bug :
 	name = p  输出 :p is a binary formula. The first part is  and the second part is 不正确
-	name = () 输出 :pvr is a binary formula. The first part is  and the second part is 不正确
+	name = pvr 输出 :pvr is a binary formula. The first part is  and the second part is 不正确
 */
 #include <stdio.h>
 #include <string.h>   /* for all the new-fangled string functions */
@@ -10,21 +10,11 @@ bug :
 int Fsize=50; /* max string length of formulas*/
 //int inputs=10;
 int inputs=1;  // grb
-int gNotOk;  // 标志 是否为 formula
+int gNotOk;
  
 int gRecursionDepth = 0 ;   // 递归深度
 
 int DEBUG = 1;	
-
-void printRecursionInfo(char * funName,char c){
-    if(DEBUG){
-        int j = 0;
-        for(j = 0 ;j <= gRecursionDepth ;j++){
-            printf("  ");
-        }
-        printf("        call %s('%c')  gRecursionDepth = %d  \n",funName,c,gRecursionDepth);
-    }
-}
 /************************************************************************
 breif		: 	判断 g[i] 是否为pqr中其中某一个
 intput		:	g  ：[string]	 propositional logic 字符串
@@ -33,38 +23,10 @@ returns 	:	无
 
 note		:	如果g[i]不是pqr之一,则可以判断不是propositional formula 
 				如果g[i]是pqr之一,则对i所在的地址的值加1
-
-
-            int i = 10;
-            &i
-
-            g = '-((p^q)^r)'
-            int *i = 0x21535365   
-            i  = 0x21535365   
-            *i = 3
-
-            *i+= 1 
-            i =  0x21535365   
-            *i= 4
-
-            i += 1 
-
-
-
-            g[*i] = '('     //  g is array 
-            g[0] = '-'
-
-            pqr\0
-            q 
-            strchr("pqr", 'q)  ==> q addr  0x88877363
-            printf   --> '\0'
-
-            printf()
 *************************************************************************/
 
 void prop(char *g,int *i)
 {
-    printRecursionInfo("prop",g[*i]);   // rbg added for debug 
     if(strchr("pqr", g[*i])){
         *i+=1;
     }
@@ -76,8 +38,7 @@ void prop(char *g,int *i)
 /* 参考prop注释 */
 void BC(char *g, int *i)
 {
-    printRecursionInfo("BC",g[*i]); // rbg added for debug 
-    if(strchr("^>v", g[*i])){
+    if(strchr("v^>", g[*i])){
         *i+=1;
     }
     else{
@@ -91,8 +52,7 @@ intput		:	g  ：[string]	 propositional logic 字符串
 				i  : [int]		 第i个字符 注意传入参数为地址
 returns 	:	无    
 
-note		:	
-                1. 虽然无返回值,但却对全局变量gNotOk进行操作了 , gNotOk标志是否为propositional logic
+note		:	虽然无返回值,但却对全局变量gNotOk进行操作了 , gNotOk标志是否为propositional logic
 *************************************************************************/
 
 void fmla(char *g, int *i)
@@ -110,26 +70,25 @@ void fmla(char *g, int *i)
 		
 	}
 
-    // switch (expression)
-    // {
-    // case /* constant-expression */:
-    //     /* code */
-    //     break;
-    
-    // default:
-    //     break;
-    // }
-    
-    if(g[*i]=='-'){		//  第一个字符为负号 递归
+    if(g[*i]=='-'){		// 如果第一个字符为负号,则判断g[i+1:-1]
         *i+=1;
         fmla(g,i);
     }
-    else if(g[*i]=='(') // 第一个字符为左括号 递归
+    else if(g[*i]=='(')
     {
         *i+=1;
         fmla(g,i);
+        if(DEBUG){
+            int j = 0;
+            for(j = 0 ;j <= gRecursionDepth ;j++){
+                printf("  ");
+            }
+            printf("        call BC('%c')  gRecursionDepth = %d  \n",g[*i],gRecursionDepth);
+        }
+        
         BC(g,i);
         fmla(g,i);
+ 
         if(g[*i]==')'){
             *i+=1;
         }
@@ -137,15 +96,23 @@ void fmla(char *g, int *i)
             gNotOk=1;
         }
     }
-    else {  // 第一个字符既不为负号，也不为括号, 则必须是pqr之一
+    else {
+        if(DEBUG){
+            int j = 0;
+            for(j = 0 ;j <= gRecursionDepth ;j++){
+                printf("  ");
+            }
+            printf("        call prop('%c')  gRecursionDepth = %d  \n",g[*i],gRecursionDepth);
+        }
         prop(g,i);
     }
-
 	if(DEBUG){
 		int j = 0;
+		
 		for(j = 0 ;j <= gRecursionDepth ;j++){
 			printf("  ");
 		}
+        
 		printf("------ fmla  end   ---------  ");
         printf("gRecursionDepth = %d  \n",gRecursionDepth);
         gRecursionDepth -= 1 ;
@@ -162,10 +129,10 @@ int isFormula(char*g){
  
     int i = 0;
     gNotOk = 0;
-    fmla(g,&i); // set gNotOk 
+    fmla(g,&i);
 	printf("strlen(g) = %d  ",strlen(g));
     //return(i == strlen(g) && gNotOk == 0);
-	return gNotOk == 0;  //  True/False
+	return gNotOk == 0;
 }
 
 /************************************************************************
@@ -215,7 +182,6 @@ void parenCounter (char*g)
         else
             parenCount[i] = prevValue;
     }
-    // parenCount = 1222221000
     for(i=0;i<sizeOfWord;i++)
     {
         printf("parenCount[i] = %d \n",parenCount[i]);
