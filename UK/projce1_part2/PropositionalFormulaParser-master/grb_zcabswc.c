@@ -234,10 +234,10 @@ void parenCounter (char*g)
             parenCount[i] = prevValue;
     }
     // parenCount = 1222221000
-    for(i=0;i<sizeOfWord;i++)
-    {
-        printf("parenCount[i] = %d \n",parenCount[i]);
-    }
+    // for(i=0;i<sizeOfWord;i++)
+    // {
+    //     printf("parenCount[i] = %d \n",parenCount[i]);
+    // }
  
 }
 char *partone(char*g)
@@ -430,7 +430,7 @@ int checkab(char *g){  //return for alpha and beta
 void complete(struct tableau *t){
   if (t != NULL){
     char *root = t->root;
-      //printf("%s\n", root);
+    printf("[complete] root = %s\n", root);
     switch(checkab(root)){
     case 0: break; //dont know what is it
     case 1:
@@ -661,7 +661,7 @@ int main()
       struct tableau t={name, NULL, NULL, NULL};
 
       //expand the root, recursively complete the children
-      printf("name = %s \n",name);
+      printf("[main] name = %s \n",name);
       if (parse(name)!=0){ 
         complete(&t);
         if (closed(&t)){
