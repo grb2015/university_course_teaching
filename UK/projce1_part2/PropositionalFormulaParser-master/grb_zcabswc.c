@@ -52,69 +52,7 @@ char *disect(char *g, int i, int j){  //g is the sting, i is starting index wher
     return segment;
 }
 
-char * trimpart1(char *g){
 
-  if(g[0]=='-')
-    return trimpart1(g+1);
-  int length = strlen(g);
-  int index = 0, bc=-1, bracket =0,  flag=0; //Locate the binary connective in the array
-  for(index =0;index<length;index++){ //eg: ((pvr)>(p>r)) brackets
-    if(g[index] == '('){
-      bracket += 1;}
-    if(g[index] == ')'){
-      bracket -= 1;} 
-
-    if(bracket == 1){   //Only take the location of bc in the middle
-            if(g[index]=='v'||g[index]=='^'||g[index]=='>'){
-              bc = index;
-        flag += 1;
-      }} 
-        }  //End of the looping
-        
-        char* prebc=(char *)malloc(sizeof(char)* (bc));
-        char* postbc=(char *)malloc(sizeof(char)*(length-bc));
-
-        if(bracket == 0 && flag ==1){ 
-          prebc = disect(g, 2, bc+1);
-    postbc = disect(g, bc+2, length);
-        }
-
-  return prebc;
-}
-
-char * trimpart2(char *g){
- if(g[0]=='-')
-   return trimpart2(g+1);
-  
-int length = strlen(g);
- 
-int index = 0, bc=-1, bracket =0,  flag=0; //Locate the binary connective in the array
-  
-      for(index =0;index<length;index++){ //eg: ((pvr)>(p>r)) brackets
-	if(g[index] == '('){
-	  bracket += 1;}
-	if(g[index] == ')'){
-	  bracket -= 1;} 
-
-	if(bracket == 1){   //Only take the location of bc in the middle
-          if(g[index]=='v'||g[index]=='^'||g[index]=='>'){
-            bc = index;
-	    flag += 1;
-	  }} 
-      }  //End of the looping
-
-       char* prebc=(char *)malloc(sizeof(char)* (bc));
-       char* postbc=(char *)malloc(sizeof(char)*(length-bc));
-
-      if(bracket == 0 && flag ==1){ 
-       
-        prebc = disect(g, 2, bc+1);
-	postbc = disect(g, bc+2, length);
-
-      }
-
-      return postbc;
-}
 
 char binaryconnective(char *g){
     int bracket =0; 
@@ -269,7 +207,85 @@ int parse(char *g)
 		return formulaVal;
 }
 
+int parenCount[100];
+ 
+/*
+    brief :     为parenCount赋值
+ */
+void parenCounter (char*g)
+{
+    int sizeOfWord=strlen(g);
+    char *copy = malloc(Fsize);
+    strcpy(copy, g);
+    parenCount[0]=1;
+    int i;
+    for(i=1;i<sizeOfWord;i++)
+    {
+        int prevValue = parenCount[i-1];
+        if(g[i]=='(') {
+            parenCount[i] = prevValue + 1;
+         
+        }
+        else if (g[i]==')') {
+            parenCount[i] = prevValue - 1;
+       
+        }
+        else
+            parenCount[i] = prevValue;
+    }
+    // parenCount = 1222221000
+    for(i=0;i<sizeOfWord;i++)
+    {
+        printf("parenCount[i] = %d \n",parenCount[i]);
+    }
+ 
+}
+char *partone(char*g)
+{
+    int sizeOfWord = strlen(g);
+    int i;
+    char* part1 = malloc(Fsize);
+ 
+    for(i = 0; i < sizeOfWord; i++)
+    {
+        if(strchr("v^>", g[i]) && parenCount[i]==1)     // parenCount[i]==1 是 part1 和 part2的分界点
+        {
+	        int j ;
+            for(j = 1; j<i;j++)
+            {
+                part1[j-1]=g[j];
+            }
+            part1[i-1]='\0';
+            break;
+        }
+    }
+    return part1;
+}
 
+char *parttwo(char *g)
+{
+    int sizeOfWord = strlen(g);
+    int i;
+    char* part2 = malloc(Fsize);
+    for(i = 0; i < sizeOfWord; i++)
+    {
+        if(strchr("v^>", g[i]) && parenCount[i] == 1)
+        {
+            int len=0;
+	        int j = 0;
+            for(j=i+1;j<sizeOfWord-1;j++)
+            {
+                part2[j-i-1]=g[j];
+                len++;
+            }
+            part2[len]='\0';
+           
+            break;
+        }
+ 
+    }
+    return part2;
+}
 
 //-----------------------------TABLEU --------------------------------------------------------------
 
@@ -289,18 +305,18 @@ char *addnegative(char *a){  // Add negative sign to the expression
 char *preexpression(char *a){
   if(parse(a)==3){
     switch(binaryconnective(a)){ //Binary 
-    case 'v': return trimpart1(a);   //Beta 
-    case '^': return trimpart1(a);    // Alpha
-    case '>': return addnegative(trimpart1(a));//Beta
+    case 'v': return partone(a);   //Beta 
+    case '^': return partone(a);    // Alpha
+    case '>': return addnegative(partone(a));//Beta
     default : return NULL;
     }
   }
 
   if( (parse(a)==2) && (parse(a+1)==3)){   // Negated Binary
       switch(binaryconnective(a)){
-      case 'v':return addnegative(trimpart1(a)); //alpha
-      case '^':return addnegative(trimpart1(a)); //beta
-      case '>':return trimpart1(a);             //alpha
+      case 'v':return addnegative(partone(a)); //alpha
+      case '^':return addnegative(partone(a)); //beta
+      case '>':return partone(a);             //alpha
       default: return NULL;
       }  
     }
@@ -312,18 +328,18 @@ char *postexpression(char *a){
 
   if(parse(a)==3){
     switch(binaryconnective(a)){ //Binary 
-    case 'v': return trimpart2(a);   //Beta 
-    case '^': return trimpart2(a);    // Alpha
-    case '>': return trimpart2(a);//Beta
+    case 'v': return parttwo(a);   //Beta 
+    case '^': return parttwo(a);    // Alpha
+    case '>': return parttwo(a);//Beta
     default : return NULL;
     }
   }
 
   if( (parse(a)==2) && (parse(a+1)==3)){   // Negated Binary
       switch(binaryconnective(a)){
-      case 'v':return addnegative(trimpart2(a)); //alpha
-      case '^':return addnegative(trimpart2(a)); //beta
-      case '>':return addnegative(trimpart2(a));             //alpha
+      case 'v':return addnegative(parttwo(a)); //alpha
+      case '^':return addnegative(parttwo(a)); //beta
+      case '>':return addnegative(parttwo(a));             //alpha
       default: return NULL;
       }  
     }
@@ -604,12 +620,12 @@ int main()
       fscanf(fp, "%s",name);/*read formula*/
         
       // printf("\n\n tableau \n\n");
-      // printf("%s\npart1 %s and part2 %s\n\n",name, trimpart1(name),trimpart2(name));
+      // printf("%s\npart1 %s and part2 %s\n\n",name, partone(name),parttwo(name));
       // printf("%s is %d formila\n", name, checkab(name));
       // printf("%s new form\n", addnegative(name));
-      // printf("%s,%s\n", addnegative(trimpart1(name)),trimpart2(name));
+      // printf("%s,%s\n", addnegative(partone(name)),parttwo(name));
       // printf("%s\n", doublenegation(name));
-      // printf("%s adn %s\n", trimpart1(name),trimpart2(name));
+      // printf("%s adn %s\n", partone(name),parttwo(name));
       switch (parse(name))
         {
           case(0): 
@@ -625,10 +641,11 @@ int main()
             fprintf(fpout, "%s is a negation.  \n", name);
             break;
           case(3):
+            parenCounter(name);
                 //int len = sizeof(parenCount) /sizeof(int);
                 //printf("len = %d",len);
-				    printf("%s is a binary formula. The first part is %s and the second part is %s  \n\n\n", name,trimpart1(name),trimpart2(name) );
-				    fprintf(fpout, "%s is a binary formula. The first part is %s and the second part is %s  \n", name,trimpart1(name),trimpart2(name) );
+				    printf("%s is a binary formula. The first part is %s and the second part is %s  \n\n\n", name,partone(name),parttwo(name) );
+				    fprintf(fpout, "%s is a binary formula. The first part is %s and the second part is %s  \n", name,partone(name),parttwo(name) );
 				    break;
           default:
 				    fprintf(fpout, "What the f***!  ");
