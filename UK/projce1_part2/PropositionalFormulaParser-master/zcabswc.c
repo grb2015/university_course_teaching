@@ -3,9 +3,15 @@
 #include <stdlib.h>     /* malloc, free, rand */
 
 int Fsize=50;
-int cases=6;
-
-
+int cases=10;
+/*project1-part1 begin */
+int Fsize=50; /* max string length of formulas*/
+//int inputs=10;
+int inputs=1;  // grb
+int gNotOk;  // 标志 是否为 formula
+int gRecursionDepth = 0 ;   // 递归深度
+int DEBUG = 0;	
+/*project1-part1 end */
 int i;
 int j;
 
@@ -46,83 +52,34 @@ char *disect(char *g, int i, int j){  //g is the sting, i is starting index wher
     return segment;
 }
 
-
-/*char * trimpart1(char *g) {
-   //  for binary connective formulas, returns first part
-    int brackets = 0, i = 0;
-    while(1) {
-        char c = g[i];
-        if(c=='(') { brackets += 1; }
-        if(c==')') { brackets -= 1; }
-        if((g[i]=='v'||g[i]=='^'||g[i]=='>') && brackets==1) {
-            return disect(g,1,i);
-            
-        }
-        i++;
-    }
-} */
-/*
-char * trimpart1(char *g){      //    char* a="((p>q)^(q>p))";
-    int length = strlen(g);
-    
-    int index = 0, bc=-1, bracket =0,  flag=0; //Locate the binary connective in the array
-    
-    for(index =0;index<length;index++){ //eg: ((pvr)>(p>r)) brackets
-        if(g[index] == '('){
-            bracket += 1;}
-        if(g[index] == ')'){
-            bracket -= 1;}
-        
-        if(bracket == 1){   //Only take the location of bc in the middle
-            if(g[index]=='v'||g[index]=='^'||g[index]=='>'){
-                bc = index;
-                flag += 1;
-            }}
-    }  //End of the looping
-    char *result=(char*)malloc(sizeof(char)*strlen(g));
-    char *temp=(char*)malloc(sizeof(char)*strlen(g));
-    for (int i=0; i<bc-1; i++) {
-        temp[i]=g[i+1];
-    }
-    for (int j=0; j<bc-0; j++) {
-        result[j]=temp[j];
-    }
-    result[bc-1]='\0';
-    return result;
-} */
-
-
 char * trimpart1(char *g){
 
   if(g[0]=='-')
     return trimpart1(g+1);
-  
-int length = strlen(g);
- 
-int index = 0, bc=-1, bracket =0,  flag=0; //Locate the binary connective in the array
-  
-      for(index =0;index<length;index++){ //eg: ((pvr)>(p>r)) brackets
-	if(g[index] == '('){
-	  bracket += 1;}
-	if(g[index] == ')'){
-	  bracket -= 1;} 
+  int length = strlen(g);
+  int index = 0, bc=-1, bracket =0,  flag=0; //Locate the binary connective in the array
+  for(index =0;index<length;index++){ //eg: ((pvr)>(p>r)) brackets
+    if(g[index] == '('){
+      bracket += 1;}
+    if(g[index] == ')'){
+      bracket -= 1;} 
 
-	if(bracket == 1){   //Only take the location of bc in the middle
-          if(g[index]=='v'||g[index]=='^'||g[index]=='>'){
-            bc = index;
-	    flag += 1;
-	  }} 
-      }  //End of the looping
-      
-      char* prebc=(char *)malloc(sizeof(char)* (bc));
-       char* postbc=(char *)malloc(sizeof(char)*(length-bc));
+    if(bracket == 1){   //Only take the location of bc in the middle
+            if(g[index]=='v'||g[index]=='^'||g[index]=='>'){
+              bc = index;
+        flag += 1;
+      }} 
+        }  //End of the looping
+        
+        char* prebc=(char *)malloc(sizeof(char)* (bc));
+        char* postbc=(char *)malloc(sizeof(char)*(length-bc));
 
-       if(bracket == 0 && flag ==1){ 
-        prebc = disect(g, 2, bc+1);
-	postbc = disect(g, bc+2, length);
-      }
+        if(bracket == 0 && flag ==1){ 
+          prebc = disect(g, 2, bc+1);
+    postbc = disect(g, bc+2, length);
+        }
 
-      return prebc;
+  return prebc;
 }
 
 char * trimpart2(char *g){
@@ -177,7 +134,142 @@ char binaryconnective(char *g){
 }
 
 
-//---------------------------------------------------------------------------------------------
+void printRecursionInfo(char * funName,char c){
+    if(DEBUG){
+        int j = 0;
+        for(j = 0 ;j <= gRecursionDepth ;j++){
+            printf("  ");
+        }
+        printf("        call %s('%c')  gRecursionDepth = %d  \n",funName,c,gRecursionDepth);
+    }
+}
+/************************************************************************
+breif		: 	判断 g[i] 是否为pqr中其中某一个
+intput		:	g  ：[string]	 propositional logic 字符串
+				i  : [int]		 第i个字符
+returns 	:	无    
+
+note		:	如果g[i]不是pqr之一,则可以判断不是propositional formula 
+				如果g[i]是pqr之一,则对i所在的地址的值加1
+*************************************************************************/
+
+void prop(char *g,int *i)
+{
+    printRecursionInfo("prop",g[*i]);   // rbg added for debug 
+    if(strchr("pqr", g[*i])){
+        *i+=1;
+    }
+    else{
+        gNotOk=1;
+    }
+}
+
+/* 参考prop注释 */
+void BC(char *g, int *i)
+{
+    printRecursionInfo("BC",g[*i]); // rbg added for debug 
+    if(strchr("^>v", g[*i])){
+        *i+=1;
+    }
+    else{
+        gNotOk=1;
+    }
+}
+
+/************************************************************************
+breif		: 	判断g[i:-1]是否为 propositional formula 
+intput		:	g  ：[string]	 propositional logic 字符串
+				i  : [int]		 第i个字符 注意传入参数为地址
+returns 	:	无    
+
+note		:	
+                1. 虽然无返回值,但却对全局变量gNotOk进行操作了 , gNotOk标志是否为propositional logic
+*************************************************************************/
+
+void fmla(char *g, int *i)
+{	
+	if(DEBUG){
+		int j = 0;
+        gRecursionDepth += 1;
+		for(j = 0 ;j <= gRecursionDepth ;j++){
+			printf("  ");
+		}
+        
+		printf("------ fmla  begin ---------  ");
+        printf("gRecursionDepth = %d  ",gRecursionDepth);
+		printf("g[%d:%d] = %s , *i = %d \n",*i,strlen(g)-1,g+*i,*i);
+		
+	}    
+    if(g[*i]=='-'){		//  第一个字符为负号 递归
+        *i+=1;
+        fmla(g,i);
+    }
+    else if(g[*i]=='(') // 第一个字符为左括号 递归
+    {
+        *i+=1;
+        fmla(g,i);
+        BC(g,i);
+        fmla(g,i);
+        if(g[*i]==')'){
+            *i+=1;
+        }
+        else {
+            gNotOk=1;
+        }
+    }
+    else {  // 第一个字符既不为负号，也不为括号, 则必须是pqr之一
+        prop(g,i);
+    }
+
+	if(DEBUG){
+		int j = 0;
+		for(j = 0 ;j <= gRecursionDepth ;j++){
+			printf("  ");
+		}
+		printf("------ fmla  end   ---------  ");
+        printf("gRecursionDepth = %d  \n",gRecursionDepth);
+        gRecursionDepth -= 1 ;
+	}
+}
+
+/************************************************************************
+breif		: 	判断是否为命题公式(不细分是negation还是binary formula)
+intput		:	char* 	g  	 待判断的命题逻辑字符串
+returns 	:	bool	            
+*************************************************************************/
+
+int isFormula(char*g){
+ 
+    int i = 0;
+    gNotOk = 0;
+    fmla(g,&i); // set gNotOk 
+	// printf("strlen(g) = %d  ",strlen(g));
+    //return(i == strlen(g) && gNotOk == 0);
+	return gNotOk == 0;  //  True/False
+}
+
+/************************************************************************
+breif		: 	命题公式的类型(细分是negation还是binary formula)
+intput		:	char* 	g  	 待判断的命题逻辑字符串
+returns 	:	int	            
+				      0	not a formula
+            	1	proposition	formula
+            	2	negation formula
+            	3.	binary formula
+*************************************************************************/
+// int parse(char *g)
+// {
+//     int formulaVal = isFormula(g);
+//     if(formulaVal)	
+//         if(g[0]=='-')
+//             return(2);
+//         else
+//             return(3);
+//     else 
+// 		return formulaVal;
+// }
+
+
 int parse(char *g){
   int status = 0;
   int length = strlen(g); //printf(" %s has length: %d, first character %c, lastcharacter %c\n", g, length, g[0],g[length-1]); 
@@ -270,7 +362,6 @@ int parse(char *g){
  
       return status;
 }
-
 
 //-----------------------------TABLEU --------------------------------------------------------------
 
@@ -595,7 +686,7 @@ int main()
   FILE *fp, *fpout;
  
  
-  if ((  fp=fopen("input.txt","r"))==NULL){printf("Error opening file");exit(1);}
+  if ((  fp=fopen("part2_input.txt","r"))==NULL){printf("Error opening file");exit(1);}
   if ((  fpout=fopen("output.txt","w"))==NULL){printf("Error opening file");exit(1);}
 
   int j;
@@ -612,27 +703,28 @@ int main()
       // printf("%s\n", doublenegation(name));
       // printf("%s adn %s\n", trimpart1(name),trimpart2(name));
       switch (parse(name))
-      {
+        {
           case(0): 
-                fprintf(fpout, "%s is not a formula.  ", name);
-                printf("%s is not a formula.  ", name);
-                break;
+              printf("%s is not a formula.  \n\n\n", name);
+              fprintf(fpout, "%s is not a formula.  \n", name);
+              break;
           case(1): 
-                fprintf(fpout, "%s is a proposition.  ", name);
-                printf("%s is a proposition.  ", name);
-                break;
+            printf("%s is a proposition. \n\n\n", name);
+            fprintf(fpout, "%s is a proposition. \n ", name);
+            break;
           case(2): 
-                fprintf(fpout, "%s is a negation.  ", name);
-                printf("%s is a negation.  ", name);
-                break;
+            printf("%s is a negation.  \n\n\n", name);
+            fprintf(fpout, "%s is a negation.  \n", name);
+            break;
           case(3):
-                fprintf(fpout, "%s is a binary.  ", name);
-                printf("%s is a binary.  ", name);
-                break;
+                //int len = sizeof(parenCount) /sizeof(int);
+                //printf("len = %d",len);
+				    printf("%s is a binary formula. The first part is %s and the second part is %s  \n\n\n", name,trimpart1(name),trimpart2(name) );
+				    fprintf(fpout, "%s is a binary formula. The first part is %s and the second part is %s  \n", name,trimpart1(name),trimpart2(name) );
+				    break;
           default:
-                fprintf(fpout, "What the f***!  ");
-                printf("What the f***!  ");
-      }
+				    fprintf(fpout, "What the f***!  ");
+       }
         
       //  struct tableau t={name, NULL, NULL, NULL};
       //  complete(&t);
