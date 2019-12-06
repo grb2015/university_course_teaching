@@ -20,7 +20,7 @@ struct tableau {
   struct  tableau *left;
   struct tableau *right;
   struct tableau *parent;
-}*tab;
+}*tab1;
 
 void newLeftchild(struct tableau *tab, char *formula){
     struct tableau *leftchild = (struct tableau*)malloc(sizeof(struct tableau));
@@ -388,7 +388,7 @@ int checkab(char *g){  //return for alpha and beta
 
   if( (parse(g)==1) || ((parse(g)==2 )&&(strlen(g)==2))  ){ //This is literal
    return 3;
-}
+  }
   if( (parse(g) ==2 ) && (parse(g+1)==2) ){  //  - & -phi -> double negation
     int countneg = 0;
     while(g[countneg] == '-'){
@@ -402,21 +402,21 @@ int checkab(char *g){  //return for alpha and beta
 
   if(parse(g) ==3){  // Binary formula
     switch(binaryconnective(g)){
-    case('v'): return 2;
-    case('>'): return 2;
-    case('^'): return 1;
-    default: break;
+      case('v'): return 2;
+      case('>'): return 2;
+      case('^'): return 1;
+      default: break;
     }
   } // end of 3rd if-loop
 
   if((parse(g)==2) && (parse(g+1)==3) ) { //Negated binary
       //printf("\t%c\t" ,binaryconnective(g));
       switch(binaryconnective(g)){
-    case('v'): return 1;
-    case('>'): return 1;
-    case('^'): return 2;
-    default: break;
-    }
+        case('v'): return 1;
+        case('>'): return 1;
+        case('^'): return 2;
+        default: break;
+      }
     
     }//End of for */
   
@@ -432,24 +432,34 @@ void complete(struct tableau *t){
     char *root = t->root;
     printf("[complete] root = %s\n", root);
     switch(checkab(root)){
-    case 0: break; //dont know what is it
+    case 0: 
+        printf("[complete] case 0  :do nothing ,break \n");
+        break; //dont know what is it
     case 1:
+        printf("[complete] case 1  :call alpha() \n");
         alpha(t, preexpression(root),postexpression(root)); //printf("\n");
         break; //Alpha
     case 2:
+        printf("[complete] case 2 : call beta() \n");
         beta(t, preexpression(root),postexpression(root)); //printf(" & ");
         break; //Beta
     case 3:
+      printf("[complete] case 3 :do nothing ,break  \n");
         break; //literal
     case 4:
+        printf("[complete] case 4 ,call  doublenegation() \n");
         t->root = doublenegation(root);
         complete(t);
         break;  //double negation
     }
-      if(t->left != NULL)
-          complete(t->left);
-      if(t->right!=NULL)
-          complete(t->right);
+    if(t->left != NULL){
+        printf("[complete] t->left->root = %s\n", t->left->root );
+        complete(t->left);
+    }
+    if(t->right!=NULL){
+        printf("[complete] t->right->root = %s\n", t->right->root );
+        complete(t->right);
+    }
   }
   
 }
@@ -506,17 +516,28 @@ int closedtab(struct tableau *t, int * statistic){
     return 0;
 }
     
+/*
+  return :
+     1  not   satisfiable  
+     0    satisfiable  
+
+*/ 
 int closed(struct tableau *t){
     int statistic[6] ={0,0,0,0,0,0}; // counting appeareance of p q r -p -q -s
     char* root = t-> root;
-    
+    printf(" [closed] root =  %s \n",root );
     
     //Base case
     
     if(parse(root) == 0) //if root is nothing
+    {
+        printf(" [closed] case : parse(root) == 0 ,do nothing ,break\n" );
         return 1;
+    }
+        
     
     if(parse(root) == 1){ //a probositional formula
+      printf(" [closed] case : parse(root) == 1 ,填充 statistic[0,1,2]  \n" );
       switch(root[0]){
         case 'p': statistic[0] = 1;
         case 'q': statistic[1] = 1;
@@ -525,6 +546,7 @@ int closed(struct tableau *t){
       }
     }
     if( (parse(root) == 2) && (parse(root+1) == 1) ){ // a negated literle e.g. --p
+        printf(" [closed] case : parse(root) == 2 or parse(root+1) == 1 ,填充 statistic[3,4,5]  \n" );
         switch(root[1]){
             case 'p': statistic[3] =1; break;
             case 'q': statistic[4] =1; break;
@@ -533,20 +555,23 @@ int closed(struct tableau *t){
     }
     
     if(t->left == NULL && t->right == NULL) // only one lit or a negation e.g -p , p , -q ,q
+    {
+        printf(" [closed] t->left == NULL && t->right == NULL ,return 0  \n" );
         return 0;  // end of base case
+    }
+       
     
     if(t->left != NULL && t->right == NULL){
-       return closedtab(t->left, statistic);
+        printf(" [closed] t->left != NULL && t->right == NULL ,call closedtab (left) \n" );
+        return closedtab(t->left, statistic);
     }
         
     if(t->left != NULL && t->right != NULL){
+        printf(" [closed] t->left != NULL && t->right != NULL ,call [closedtab (left),closedtab (right)] \n" );
         int ringo = closedtab(t->left, statistic);
         int nameless = closedtab(t->right, statistic);
         return ringo && nameless;
     }
-    
-
-    
     return 0;
 }
 
