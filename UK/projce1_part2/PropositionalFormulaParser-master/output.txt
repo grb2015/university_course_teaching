@@ -1,6 +1,25 @@
-((qvp)>(qvr)) is a binary formula
--((pvr)v(qvr)) is a negation
-((pvq)>(-p>--q)) is a binary formula
+(qvp) is a binary formula
 -(p>(q>p)) is a negation
 (pv-q) is a binary formula
+--p is a negation
 -(pv-p) is a negation
+(p^-p) is a binary formula
+(qvp) is satisfiable
+-(p>(q>p)) is not satisfiable
+(pv-q) is satisfiable
+--p is satisfiable
+-(pv-p) is not satisfiable
+(p^-p) is not satisfiable
+
+
+(qvp) is a binary.  (qvp) is satisfiable.
+-(p>(q>p)) is a negation.  -(p>(q>p)) is not satisfiable.
+(pv-q) is a binary.  (pv-q) is satisfiable.
+--p is a negation.  --p is satisfiable.
+-(pv-p) is a negation.  -(pv-p) is not satisfiable.
+(p^-p) is a binary.  (p^-p) is not satisfiable.
+(p^-p) is a binary.  (p^-p) is not satisfiable.
+(p^-p) is a binary.  (p^-p) is not satisfiable.
+(p^-p) is a binary.  (p^-p) is not satisfiable.
+(p^-p) is a binary.  (p^-p) is not satisfiable.
+

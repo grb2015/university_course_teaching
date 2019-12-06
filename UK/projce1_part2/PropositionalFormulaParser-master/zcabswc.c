@@ -3,7 +3,7 @@
 #include <stdlib.h>     /* malloc, free, rand */
 
 int Fsize=50;
-int cases=10;
+int cases=6;
 
 
 int i;
@@ -14,7 +14,7 @@ struct tableau {
   struct  tableau *left;
   struct tableau *right;
   struct tableau *parent;
-}*tab, *node, *node1, *kid, *pa;
+}*tab;
 
 void newLeftchild(struct tableau *tab, char *formula){
     struct tableau *leftchild = (struct tableau*)malloc(sizeof(struct tableau));
@@ -600,24 +600,39 @@ int main()
 
   int j;
   for(j=0;j<cases;j++)
-    {
+  {
         
       fscanf(fp, "%s",name);/*read formula*/
         
-        //printf("\n\n tableau \n\n");
-        //printf("%s\npart1 %s and part2 %s\n\n",name, trimpart1(name),trimpart2(name));
-        // printf("%s is %d formila\n", name, checkab(name));
-      //printf("%s new form\n", addnegative(name));
-      //  printf("%s,%s\n", addnegative(trimpart1(name)),trimpart2(name));
-      //printf("%s\n", doublenegation(name));
-       // printf("%s adn %s\n", trimpart1(name),trimpart2(name));
+      // printf("\n\n tableau \n\n");
+      // printf("%s\npart1 %s and part2 %s\n\n",name, trimpart1(name),trimpart2(name));
+      // printf("%s is %d formila\n", name, checkab(name));
+      // printf("%s new form\n", addnegative(name));
+      // printf("%s,%s\n", addnegative(trimpart1(name)),trimpart2(name));
+      // printf("%s\n", doublenegation(name));
+      // printf("%s adn %s\n", trimpart1(name),trimpart2(name));
       switch (parse(name))
-	{case(0): fprintf(fpout, "%s is not a formula.  ", name);break;
-	case(1): fprintf(fpout, "%s is a proposition.  ", name);break;
-	case(2): fprintf(fpout, "%s is a negation.  ", name);break;
-	case(3):fprintf(fpout, "%s is a binary.  ", name);break;
-	default:fprintf(fpout, "What the f***!  ");
-	}
+      {
+          case(0): 
+                fprintf(fpout, "%s is not a formula.  ", name);
+                printf("%s is not a formula.  ", name);
+                break;
+          case(1): 
+                fprintf(fpout, "%s is a proposition.  ", name);
+                printf("%s is a proposition.  ", name);
+                break;
+          case(2): 
+                fprintf(fpout, "%s is a negation.  ", name);
+                printf("%s is a negation.  ", name);
+                break;
+          case(3):
+                fprintf(fpout, "%s is a binary.  ", name);
+                printf("%s is a binary.  ", name);
+                break;
+          default:
+                fprintf(fpout, "What the f***!  ");
+                printf("What the f***!  ");
+      }
         
       //  struct tableau t={name, NULL, NULL, NULL};
       //  complete(&t);
@@ -629,14 +644,24 @@ int main()
       struct tableau t={name, NULL, NULL, NULL};
 
       //expand the root, recursively complete the children
-      if (parse(name)!=0)
-	{ complete(&t);
-	  if (closed(&t)) fprintf(fpout, "%s is not satisfiable.\n", name);
-	  else fprintf(fpout, "%s is satisfiable.\n", name);
-	}
-	else fprintf(fpout, "I told you, %s is not a formula.\n", name);
+      printf("name = %s \n",name);
+      if (parse(name)!=0){ 
+        complete(&t);
+        if (closed(&t)){
+          fprintf(fpout, "%s is not satisfiable.\n", name);
+          printf("%s is not satisfiable.\n", name);
+        } 
+        else{
+          fprintf(fpout, "%s is satisfiable.\n", name);
+          printf("%s is satisfiable.\n", name);
+        } 
+      }
+      else{
+          fprintf(fpout, "I told you, %s is not a formula.\n", name);
+          printf("I told you, %s is not a formula.\n", name);
+      }
 
-    }
+  }
  
   fclose(fp);
   fclose(fpout);
