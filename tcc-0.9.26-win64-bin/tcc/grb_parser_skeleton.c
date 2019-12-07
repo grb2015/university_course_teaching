@@ -1,7 +1,9 @@
 /*
 bug :
-	name = p  输出 :p is a binary formula. The first part is  and the second part is 不正确
-	name = pvr 输出 :pvr is a binary formula. The first part is  and the second part is 不正确
+	bug1 :  name = p  输出 :p is a binary formula. The first part is  and the second part is 不正确  应该为 p is a proposition. 
+	bug2 :  name = pvr 输出 :pvr is a binary formula. The first part is  and the second part is 不正确  应该为  pvr is not a formula. 
+
+    错误的
 */
 #include <stdio.h>
 #include <string.h>   /* for all the new-fangled string functions */
@@ -9,7 +11,7 @@ bug :
  
 int Fsize=50; /* max string length of formulas*/
 //int inputs=10;
-int inputs=1;  // grb
+int inputs=11;  // grb
 int gNotOk;
  
 int gRecursionDepth = 0 ;   // 递归深度
@@ -137,8 +139,8 @@ int isFormula(char*g){
     gNotOk = 0;
     fmla(g,&i);
 	printf("strlen(g) = %d  ",strlen(g));
-    //return(i == strlen(g) && gNotOk == 0);
-	return gNotOk == 0;
+    return(i == strlen(g) && gNotOk == 0);      // bg fiex bug2 20191207
+	// return gNotOk == 0;
 }
 
 /************************************************************************
@@ -152,7 +154,16 @@ returns 	:	int
 *************************************************************************/
 int parse(char *g)
 {
+    //Single Character 
+    //  bg fix bug 1 20191207 begin 
+    int length = strlen(g); 
+    if(g[0] == 'p' || g[0] == 'q'||g[0] == 'r'){
+        if (length == 1){
+        return (1);}
+    }
+    // //  bg fix bug 1 20191207 end 
     int formulaVal = isFormula(g);
+
     if(formulaVal)	
         if(g[0]=='-')
             return(2);
@@ -242,17 +253,17 @@ char *parttwo(char *g)
 int main(){ /*input 10 strings from "input.txt" */
  
     /* reads from input.txt, writes to output.txt*/
-    // char *name = malloc(Fsize);
-    char *name = "-(p^q^r)";
-    // FILE *fp, *fpout;
-    // if ((  fp=fopen("input.txt","r"))==NULL){printf("Error opening file");exit(1);}
+    char *name = malloc(Fsize);
+    // char *name = "-(p^q^r)";
+    FILE *fp, *fpout;
+    if ((  fp=fopen("part1_input.txt","r"))==NULL){printf("Error opening file");exit(1);}
  
-    // if ((  fpout=fopen("output.txt","w"))==NULL){printf("Error opening file");exit(1);}
+    if ((  fpout=fopen("output.txt","w"))==NULL){printf("Error opening file");exit(1);}
  
     int j;
     for(j=0;j<inputs;j++)
     {
-        // fscanf(fp, "%s",name);//read formula
+        fscanf(fp, "%s",name);//read formula
         printf("name  == %s \n ",name);
 		int rt = parse(name);
 		printf("rt = %d  ",rt);
@@ -260,26 +271,26 @@ int main(){ /*input 10 strings from "input.txt" */
         {
             case(0): 
 				printf("%s is not a formula.  \n\n\n", name);
-				// fprintf(fpout, "%s is not a formula.  \n", name);
+				fprintf(fpout, "%s is not a formula.  \n", name);
 				break;
             case(1): 
 				printf("%s is a proposition. \n\n\n", name);
-				// fprintf(fpout, "%s is a proposition. \n ", name);
+				fprintf(fpout, "%s is a proposition. \n ", name);
 				break;
             case(2): 
 				printf("%s is a negation.  \n\n\n", name);
-				// fprintf(fpout, "%s is a negation.  \n", name);
+				fprintf(fpout, "%s is a negation.  \n", name);
 				break;
             case(3):
 				parenCounter(name);
                 //int len = sizeof(parenCount) /sizeof(int);
                 //printf("len = %d",len);
 				printf("%s is a binary formula. The first part is %s and the second part is %s  \n\n\n", name,partone(name),parttwo(name) );
-				// fprintf(fpout, "%s is a binary formula. The first part is %s and the second part is %s  \n", name,partone(name),parttwo(name) );
+				fprintf(fpout, "%s is a binary formula. The first part is %s and the second part is %s  \n", name,partone(name),parttwo(name) );
 				break;
             default:
                 printf("What the f***! ");
-				// fprintf(fpout, "What the f***!  ");
+				fprintf(fpout, "What the f***!  ");
        }
     }
     // fclose(fp);
