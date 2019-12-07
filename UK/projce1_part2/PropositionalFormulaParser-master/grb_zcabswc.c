@@ -427,42 +427,42 @@ int checkab(char *g){  //return for alpha and beta
 
 
 
-void complete(struct tableau *t){
-  if (t != NULL){
-    char *root = t->root;
-    printf("[complete] root = %s\n", root);
-    switch(checkab(root)){
-    case 0: 
-        printf("[complete] case 0  :do nothing ,break \n");
-        break; //dont know what is it
-    case 1:
-        printf("[complete] case 1  :call alpha() \n");
-        alpha(t, preexpression(root),postexpression(root)); //printf("\n");
-        break; //Alpha
-    case 2:
-        printf("[complete] case 2 : call beta() \n");
-        beta(t, preexpression(root),postexpression(root)); //printf(" & ");
-        break; //Beta
-    case 3:
-      printf("[complete] case 3 :do nothing ,break  \n");
-        break; //literal
-    case 4:
-        printf("[complete] case 4 ,call  doublenegation() \n");
-        t->root = doublenegation(root);
-        complete(t);
-        break;  //double negation
-    }
-    if(t->left != NULL){
-        printf("[complete] t->left->root = %s\n", t->left->root );
-        complete(t->left);
-    }
-    if(t->right!=NULL){
-        printf("[complete] t->right->root = %s\n", t->right->root );
-        complete(t->right);
-    }
-  }
+// void complete(struct tableau *t){
+//   if (t != NULL){
+//     char *root = t->root;
+//     printf("[complete] root = %s\n", root);
+//     switch(checkab(root)){
+//     case 0: 
+//         printf("[complete] case 0  :do nothing ,break \n");
+//         break; //dont know what is it
+//     case 1:
+//         printf("[complete] case 1  :call alpha() \n");
+//         alpha(t, preexpression(root),postexpression(root)); //printf("\n");
+//         break; //Alpha
+//     case 2:
+//         printf("[complete] case 2 : call beta() \n");
+//         beta(t, preexpression(root),postexpression(root)); //printf(" & ");
+//         break; //Beta
+//     case 3:
+//       printf("[complete] case 3 :do nothing ,break  \n");
+//         break; //literal
+//     case 4:
+//         printf("[complete] case 4 ,call  doublenegation() \n");
+//         t->root = doublenegation(root);
+//         complete(t);
+//         break;  //double negation
+//     }
+//     if(t->left != NULL){
+//         printf("[complete] t->left->root = %s\n", t->left->root );
+//         complete(t->left);
+//     }
+//     if(t->right!=NULL){
+//         printf("[complete] t->right->root = %s\n", t->right->root );
+//         complete(t->right);
+//     }
+//   }
   
-}
+// }
 
 
 //-----------------------expands ENDS   checking starts-------------
@@ -688,7 +688,7 @@ int main()
       //expand the root, recursively complete the children
       printf("[main] name = %s \n",name);
       if (parse(name)!=0){ 
-        complete(&t);
+        // complete(&t);
         if (closed(&t)){
           fprintf(fpout, "%s is not satisfiable.\n", name);
           printf("%s is not satisfiable.\n", name);
