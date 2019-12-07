@@ -365,32 +365,81 @@ char *doublenegation(char *a){
 
 void add_alpha_child(struct tableau *t, char *a){ //
     //Base case
-    if(t->left == NULL)
-        newLeftchild(t,a);
-    else
-        add_alpha_child(t->left, a);
     
-    if(t->right != NULL)
-        add_alpha_child(t->right, a);
+    if(t->left == NULL){
+		printf("[add_alpha_child] t->left == NULL,call newLeftchild(t,a) \n");
+		newLeftchild(t,a);
+	}
+    else{
+		printf("[add_alpha_child] t->left != NULL,call add_alpha_child(t->left, a) \n");
+		add_alpha_child(t->left, a);
+	}
+        
+    
+    if(t->right != NULL){		
+		printf("[add_alpha_child] t->right != NULL,call add_alpha_child(t->right, a) \n");
+		add_alpha_child(t->right, a);
+	}
     
 }
 
 void alpha(struct tableau *t, char *exp1, char *exp2){
+	printf("[alpha] t->root = %s\n",t->root);
+	if(t->left != NULL){
+		printf("[alpha] t->left->root = %s\n",t->left->root);
+	}
+	if(t->right != NULL){
+		printf("[alpha] t->right->root = %s\n",t->right->root);
+	}
+	
+	printf("[alpha] exp1 = %s\n",exp1);
+	printf("[alpha] exp2 = %s\n",exp2);
+	printf("[alpha] call add_alpha_child(t,exp1)\n");
     add_alpha_child(t,exp1);
+	printf("[alpha] call add_alpha_child(t,exp2)\n");
     add_alpha_child(t,exp2);
+	printf("[alpha] after t->root = %s\n",t->root);
+	if(t->left != NULL){
+		printf("[alpha] after t->left->root = %s\n",t->left->root);
+	}
+	if(t->right != NULL){
+		printf("[alpha] after t->right->root = %s\n",t->right->root);
+	}
 }
 
 void beta(struct tableau *t, char *exp1, char *exp2){
     //base case
+    printf("[beta] t->root = %s\n",t->root);
+	if(t->left != NULL){
+		printf("[beta] t->left->root = %s\n",t->left->root);
+	}
+	if(t->right != NULL){
+		printf("[beta] t->right->root = %s\n",t->right->root);
+	}
+	printf("[beta] exp1 = %s\n",exp1);
+	printf("[beta] exp2 = %s\n",exp2);
+	printf("[beta] call add_alpha_child(t,exp1)\n");
     if(t->left == NULL){
+		printf("[beta] t->left == NULL  ,call newLeftchild(t, exp1) & newRightchild(t, exp2);\n");
         newLeftchild(t, exp1);
         newRightchild(t, exp2);
     }else{
+		printf("[beta] t->left != NULL  ,call  beta(t->left, exp1, exp2); \n");
         beta(t->left, exp1, exp2);
         if(t->right != NULL){
             beta(t->right,exp1,exp2);
         }
     }
+	
+	printf("[beta] after t->root = %s\n",t->root);
+	
+	if(t->left != NULL){
+		printf("[beta] after t->left->root = %s\n",t->left->root);
+	}
+	
+	if(t->right != NULL){
+		printf("[beta] after t->right->root = %s\n",t->right->root);
+	}
     
 }
 /* check alpha(1), beta(2) formula, literal(3) or double negation(4) */
@@ -447,7 +496,6 @@ void complete(struct tableau *t){
         break; //dont know what is it
     case 1:
         printf("[complete] case 1  :call alpha() \n");
-        
         alpha(t, preexpression(root),postexpression(root)); //printf("\n");
         break; //Alpha
     case 2:
@@ -491,9 +539,13 @@ int closedtab(struct tableau *t, int * statistic){
     }
 
     printf(" [closedtab] root  = %s \n",root);
-    printf(" [closedtab] root->left =  %s \n",t->left );
-    printf(" [closedtab] root->right =  %s \n",t->right );
-    printf("[closedtab] root  = %s before new = [%d,%d,%d,%d,%d,%d]\n",
+	if(t->left != NULL){
+    	printf(" [closedtab] root->left->root =  %s \n",t->left->root );
+	}
+	if(t->right != NULL){
+    	printf(" [closedtab] root->right->root =  %s \n",t->right->root );
+	}
+    printf(" [closedtab]before new = [%d,%d,%d,%d,%d,%d]\n",
         new[0],new[1], new[2], new[3], new[4], new[5]);
 
     if(parse(root) == 1) {
@@ -551,8 +603,12 @@ int closed(struct tableau *t){
     int statistic[6] ={0,0,0,0,0,0}; // counting appeareance of p q r -p -q -s
     char* root = t-> root;
     printf(" [closed] root =  %s \n",root );
-    printf(" [closed] root->left =  %s \n",t->left );
-    printf(" [closed] root->right =  %s \n",t->right );
+	if(t->left != NULL){
+		printf(" [closed] root->left->root =  %s \n",t->left->root );
+	}
+	if(t->right != NULL){
+    	printf(" [closed] root->right->root =  %s \n",t->right->root );
+	}
     
     //Base case
     
@@ -581,7 +637,7 @@ int closed(struct tableau *t){
         }
     }
     else{
-        printf(" [closed] case : parse(root) == %d ,do nothing  \n" ,parse(root) );
+        printf(" [closed] case : parse(root) == [3] %d ,do nothing  \n" ,parse(root) );
     }
     
     if(t->left == NULL && t->right == NULL) // only one lit or a negation e.g -p , p , -q ,q
