@@ -529,21 +529,22 @@ void complete(struct tableau *t){
 
 //Return 0 if statisfiable, 1 if not statisfiable
 //so if the tableau is closed, it is satisfiable, otherwise it is not
-
+// 鍙鏈塺eturn鐨勫湴鏂?閮芥墦鍗颁竴涓媝rintRecursionInfo / gRecursionDepth -= 1;
 int closedtab(struct tableau *t, int * statistic){
     char *root = t -> root;
     int new[6];
-    
+	  gRecursionDepth += 1;
+    printf("##########  [closedtab] gRecursionDepth = %d \n",gRecursionDepth);
     for(int z =0; z<6; z++){
      new[z] = statistic[z];
     }
 
-    printf(" [closedtab] root  = %s \n",root);
+    printf(" [closedtab] t->root  = %s \n",t -> root);
 	if(t->left != NULL){
-    	printf(" [closedtab] root->left->root =  %s \n",t->left->root );
+    	printf(" [closedtab] t->left->root =  %s \n",t->left->root );
 	}
 	if(t->right != NULL){
-    	printf(" [closedtab] root->right->root =  %s \n",t->right->root );
+    	printf(" [closedtab] t->right->root=  %s \n",t->right->root );
 	}
     printf(" [closedtab]before new = [%d,%d,%d,%d,%d,%d]\n",
         new[0],new[1], new[2], new[3], new[4], new[5]);
@@ -562,13 +563,15 @@ int closedtab(struct tableau *t, int * statistic){
             case 'r': new[5] = 1; break;
         }
     }
-    printf("[closedtab] root  = %s after new = [%d,%d,%d,%d,%d,%d]\n",
+    printf(" [closedtab] root  = %s after new = [%d,%d,%d,%d,%d,%d]\n",root,
         new[0],new[1], new[2], new[3], new[4], new[5]);
 
     for(int index = 0; index< 3; index++ ){
         if( (new[index]==1)  && (new[index+3]==1 )){
             printf("[closedtab]  retrun 1  new[%d] = %d , new[%d] = %d \n",index,new[index],index + 3 ,new[index+3]);
-            return 1;
+			printf("##########  [closedtab] gRecursionDepth = %d \n",gRecursionDepth);
+			gRecursionDepth -= 1;
+			return 1;
         }
     }
     
@@ -579,17 +582,28 @@ int closedtab(struct tableau *t, int * statistic){
     if(t->left != NULL && t->right == NULL){
         printf(" [closedtab] t->left != NULL && t->right == NULL ,call closedtab (left) new = [%d,%d,%d,%d,%d,%d]\n",
             new[0],new[1], new[2], new[3], new[4], new[5]);
-        return closedtab(t->left, new);
+		int rt = closedtab(t->left, new);
+		printf("##########  [closedtab] gRecursionDepth = %d \n",gRecursionDepth);
+		gRecursionDepth -= 1;
+        return rt;
+		//return closedtab(t->left, new);
     }
     
     if(t->left != NULL && t->right != NULL){
         printf(" [closedtab] t->left != NULL && t->right != NULL ,call [closedtab (left),closedtab (right)] new = [%d,%d,%d,%d,%d,%d]\n",
             new[0],new[1], new[2], new[3], new[4], new[5]);
+		printf("[closedtab] t->left != NULL && t->right != NULL ,call closedtab(t->left, new) BEGIN\n");
         int ringo = closedtab(t->left, new);
+		printf("[closedtab] t->left != NULL && t->right != NULL ,call closedtab(t->left, new) END\n");
+		printf("[closedtab] t->left != NULL && t->right != NULL ,call closedtab(t->right, new) BEGIN\n");
         int nameless = closedtab(t->right, new);
+		printf("[closedtab] t->left != NULL && t->right != NULL ,call closedtab(t->right, new) END\n");
+		printf("##########  [closedtab] gRecursionDepth = %d \n",gRecursionDepth);
+		gRecursionDepth -= 1;
         return ringo && nameless;
     }
-        
+	gRecursionDepth -= 1;
+    printf("##########  [closedtab] gRecursionDepth = %d \n",gRecursionDepth);     
     return 0;
 }
     
@@ -602,12 +616,20 @@ int closedtab(struct tableau *t, int * statistic){
 int closed(struct tableau *t){
     int statistic[6] ={0,0,0,0,0,0}; // counting appeareance of p q r -p -q -s
     char* root = t-> root;
-    printf(" [closed] root =  %s \n",root );
+    printf(" [closed] t-> root =  %s \n",root );
 	if(t->left != NULL){
-		printf(" [closed] root->left->root =  %s \n",t->left->root );
+		printf(" [closed] t->left->root =  %s \n",t->left->root );
 	}
+	else{
+
+		printf(" [closed] t->left is NULL \n");
+	}
+
 	if(t->right != NULL){
-    	printf(" [closed] root->right->root =  %s \n",t->right->root );
+    	printf(" [closed] t->right->root =  %s \n",t->right->root );
+	}
+	else{
+		printf(" [closed] t->right is NULL \n");
 	}
     
     //Base case
