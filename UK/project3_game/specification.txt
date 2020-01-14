@@ -1,0 +1,29 @@
+Choose the File > Options menu to set the rate of the game at 20 frames per second.
+Choose the Game > Autofill menu item and select 40% random tiles to fill.
+Now start the game running … and wait.
+Eventually (after a number of minutes) … it will crash with:
+---
+Exception in thread "Thread-0" java.lang.StackOverflowError
+
+*** QUESTION 1: Describe what caused this bug and how you fixed it.
+
+*** QUESTION 2: Explain what is the key difference in how the
+CopyOnWriteArrayList behaves compared to a normal ArrayList which has probably
+made all these concurrency issues disappear (be specific about how a particular
+mechanism used in the code works differently with these two classes).
+
+*** QUESTION 3: What could be a disadvantage of using CopyOnWriteArrayList here
+instead of a normal Arraylist? (Assuming we weren’t worried about the concurrency
+issues!)
+
+*** QUESTION 4: Do five runs and write down the different times your system takes
+to do 100,000 cycles of the game of life (these will not all be shown on the screen
+due to not having any sleep time in the code).
+
+*** Take a copy of your Java code with 4 threads assigned to the thread pool. Label
+the code: “ConwaysGameOfLife_VERSION3.java”
+*** QUESTION 5: Experiment with different numbers of threads used in the thread
+pool (for example try 1 thread, 2 threads, 4 threads, 6 threads, 8 threads, etc). Each
+time record three (or better five) measurements of milliseconds for 100,000 cycles of
+the board. Work out average / standard deviation of times and produce a table /
+graph to show what might be the optimal number of threads for your system.
