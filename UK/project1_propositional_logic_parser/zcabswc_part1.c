@@ -3,12 +3,11 @@
 #include <stdlib.h>     /* malloc, free, rand */
 
 int Fsize=50;
-int cases=1;
-int DEBUG = 1;
+int cases=10;
+
 
 int i;
 int j;
-int gRecursionDepth = 0;
 
 struct tableau {
   char *root;
@@ -16,18 +15,6 @@ struct tableau {
   struct tableau *right;
   struct tableau *parent;
 }*tab;
-
-
-void printRecursionInfo(char * funName){
-    if(DEBUG){
-        int j = 0;
-        for(j = 0 ;j <= gRecursionDepth ;j++){
-            printf("  ");
-        }
-        printf("        call %s  gRecursionDepth = %d  \n",funName,gRecursionDepth);
-    }
-}
-
 
 void newLeftchild(struct tableau *tab, char *formula){
     struct tableau *leftchild = (struct tableau*)malloc(sizeof(struct tableau));
@@ -458,27 +445,15 @@ void complete(struct tableau *t){
 
 //Return 0 if statisfiable, 1 if not statisfiable
 //so if the tableau is closed, it is satisfiable, otherwise it is not
-// åªè¦æœ‰returnçš„åœ°æ–¹,éƒ½æ‰“å°ä¸€ä¸‹printRecursionInfo / gRecursionDepth -= 1;
+
 int closedtab(struct tableau *t, int * statistic){
     char *root = t -> root;
     int new[6];
-	  gRecursionDepth += 1;
-    printf("##########  [closedtab] gRecursionDepth = %d \n",gRecursionDepth);
-    printRecursionInfo("closedtab");
+    
     for(int z =0; z<6; z++){
      new[z] = statistic[z];
     }
-
-    printf(" [closedtab] t->root  = %s \n",t -> root);
-	if(t->left != NULL){
-    	printf(" [closedtab] t->left->root =  %s \n",t->left->root );
-	}
-	if(t->right != NULL){
-    	printf(" [closedtab] t->right->root=  %s \n",t->right->root );
-	}
-    printf(" [closedtab]before new = [%d,%d,%d,%d,%d,%d]\n",
-        new[0],new[1], new[2], new[3], new[4], new[5]);
-
+    
     if(parse(root) == 1) {
         switch(root[0]) {
             case 'p': new[0] = 1; break;
@@ -493,87 +468,40 @@ int closedtab(struct tableau *t, int * statistic){
             case 'r': new[5] = 1; break;
         }
     }
-    printf(" [closedtab] root  = %s after new = [%d,%d,%d,%d,%d,%d]\n",root,
-        new[0],new[1], new[2], new[3], new[4], new[5]);
+    
     for(int index = 0; index< 3; index++ ){
         if( (new[index]==1)  && (new[index+3]==1 )){
-            printf("[closedtab]  retrun 1  new[%d] = %d , new[%d] = %d \n",index,new[index],index + 3 ,new[index+3]);
-			printf("##########  [closedtab] gRecursionDepth = %d \n",gRecursionDepth);
-			gRecursionDepth -= 1;
-			return 1;
+            return 1;
         }
     }
     
     if(t->left == NULL && t->right == NULL){
-      printf(" [closedtab] t->left == NULL && t->right == NULL ,return 0  \n" );
       return 0;
     }
     if(t->left != NULL && t->right == NULL){
-        printf(" [closedtab] t->left != NULL && t->right == NULL ,call closedtab (left) new = [%d,%d,%d,%d,%d,%d]\n",
-            new[0],new[1], new[2], new[3], new[4], new[5]);
-		int rt = closedtab(t->left, new);
-		printf("##########  [closedtab] gRecursionDepth = %d \n",gRecursionDepth);
-		gRecursionDepth -= 1;
-        return rt;
-		//return closedtab(t->left, new);
+        return closedtab(t->left, new);
     }
     
     if(t->left != NULL && t->right != NULL){
-        printf(" [closedtab] t->left != NULL && t->right != NULL ,call [closedtab (left),closedtab (right)] new = [%d,%d,%d,%d,%d,%d]\n",
-            new[0],new[1], new[2], new[3], new[4], new[5]);
-		printf("[closedtab] t->left != NULL && t->right != NULL ,call closedtab(t->left, new) BEGIN\n");
         int ringo = closedtab(t->left, new);
-		printf("[closedtab] t->left != NULL && t->right != NULL ,call closedtab(t->left, new) END\n");
-		printf("[closedtab] t->left != NULL && t->right != NULL ,call closedtab(t->right, new) BEGIN\n");
         int nameless = closedtab(t->right, new);
-		printf("[closedtab] t->left != NULL && t->right != NULL ,call closedtab(t->right, new) END\n");
-		printf("##########  [closedtab] gRecursionDepth = %d \n",gRecursionDepth);
-		gRecursionDepth -= 1;
         return ringo && nameless;
     }
-	gRecursionDepth -= 1;
-    printf("##########  [closedtab] gRecursionDepth = %d \n",gRecursionDepth);     
+        
     return 0;
 }
     
-/*
-  return :
-     1  not   satisfiable  
-     0    satisfiable  
-
-*/ 
 int closed(struct tableau *t){
     int statistic[6] ={0,0,0,0,0,0}; // counting appeareance of p q r -p -q -s
     char* root = t-> root;
-    printf(" [closed] t-> root =  %s \n",root );
-	
-	if(t->left != NULL){
-		printf(" [closed] t->left->root =  %s \n",t->left->root );
-	}
-	else{
-
-		printf(" [closed] t->left is NULL \n");
-	}
-
-	
-	if(t->right != NULL){
-    	printf(" [closed] t->right->root =  %s \n",t->right->root );
-	}
-	else{
-		printf(" [closed] t->right is NULL \n");
-	}
     
     
     //Base case
     
     if(parse(root) == 0) //if root is nothing
-    {
-        printf(" [closed] case : parse(root) == 0 ,do nothing ,break\n" );
         return 1;
-    }
     
     if(parse(root) == 1){ //a probositional formula
-      printf(" [closed] case : parse(root) == 1 ,Ìî³ä statistic[0,1,2]  \n" );
       switch(root[0]){
         case 'p': statistic[0] = 1;
         case 'q': statistic[1] = 1;
@@ -582,33 +510,21 @@ int closed(struct tableau *t){
       }
     }
     if( (parse(root) == 2) && (parse(root+1) == 1) ){ // a negated literle e.g. --p
-        printf(" [closed] case : parse(root) == 2 or parse(root+1) == 1 ,Ìî³ä statistic[3,4,5]  \n" );
         switch(root[1]){
             case 'p': statistic[3] =1; break;
             case 'q': statistic[4] =1; break;
             case 'r': statistic[5] =1; break;
         }
     }
-    else{
-        printf(" [closed] case : parse(root) == [3] %d ,do nothing  \n" ,parse(root) );
-    }
     
     if(t->left == NULL && t->right == NULL) // only one lit or a negation e.g -p , p , -q ,q
-    {
-        printf(" [closed] t->left == NULL && t->right == NULL ,return 0  \n" );
         return 0;  // end of base case
-    }
-       
     
     if(t->left != NULL && t->right == NULL){
-        printf(" [closed] t->left != NULL && t->right == NULL ,call closedtab (left) statistic = [%d,%d,%d,%d,%d,%d]\n",
-        statistic[0],statistic[1], statistic[2], statistic[3], statistic[4], statistic[5]);
-        return closedtab(t->left, statistic);
+       return closedtab(t->left, statistic);
     }
         
     if(t->left != NULL && t->right != NULL){
-        printf(" [closed] t->left != NULL && t->right != NULL ,call [closedtab (left),closedtab (right)] statistic = [%d,%d,%d,%d,%d,%d]\n",
-        statistic[0],statistic[1], statistic[2], statistic[3], statistic[4], statistic[5]);
         int ringo = closedtab(t->left, statistic);
         int nameless = closedtab(t->right, statistic);
         return ringo && nameless;
@@ -668,18 +584,19 @@ void testcomplete(){
 }
 
 
+
 //Main
 int main()
 
 { /*input a string and check if its a propositional formula */
 
    //testcomplete();
-   // unittest();
+    unittest();
   char *name = malloc(Fsize);
   FILE *fp, *fpout;
  
  
-  if ((  fp=fopen("part2_input_origan_only_1.txt","r"))==NULL){printf("Error opening file");exit(1);}
+  if ((  fp=fopen("part1_input.txt","r"))==NULL){printf("Error opening file");exit(1);}
   if ((  fpout=fopen("output.txt","w"))==NULL){printf("Error opening file");exit(1);}
 
   int j;
@@ -726,25 +643,25 @@ int main()
 
 
       
-      struct tableau t={name, NULL, NULL, NULL};
+      // struct tableau t={name, NULL, NULL, NULL};
 
-      //expand the root, recursively complete the children
-      printf("name = %s \n",name);
-      if (parse(name)!=0){ 
-        complete(&t);
-        if (closed(&t)){
-          fprintf(fpout, "%s is not satisfiable.\n", name);
-          printf("%s is not satisfiable.\n", name);
-        } 
-        else{
-          fprintf(fpout, "%s is satisfiable.\n", name);
-          printf("%s is satisfiable.\n", name);
-        } 
-      }
-      else{
-          fprintf(fpout, "I told you, %s is not a formula.\n", name);
-          printf("I told you, %s is not a formula.\n", name);
-      }
+      // //expand the root, recursively complete the children
+      // printf("name = %s \n",name);
+      // if (parse(name)!=0){ 
+      //   complete(&t);
+      //   if (closed(&t)){
+      //     fprintf(fpout, "%s is not satisfiable.\n", name);
+      //     printf("%s is not satisfiable.\n", name);
+      //   } 
+      //   else{
+      //     fprintf(fpout, "%s is satisfiable.\n", name);
+      //     printf("%s is satisfiable.\n", name);
+      //   } 
+      // }
+      // else{
+      //     fprintf(fpout, "I told you, %s is not a formula.\n", name);
+      //     printf("I told you, %s is not a formula.\n", name);
+      // }
 
   }
  

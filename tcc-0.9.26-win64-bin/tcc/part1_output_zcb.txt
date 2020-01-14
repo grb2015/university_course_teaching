@@ -1,0 +1,11 @@
+(pv(-p^q)) is a binary formula. The first part is p and the second part is (-p^q)  
+-(p^q^r) is not a formula.  
+(pv(qvp)) is a binary formula. The first part is p and the second part is (qvp)  
+(-pv-p) is a binary formula. The first part is -p and the second part is -p  
+(p^q) is a binary formula. The first part is p and the second part is q  
+(-qv(p^q)) is a binary formula. The first part is -q and the second part is (p^q)  
+(p(^q)) is not a formula.  
+((p^-p)^r) is a binary formula. The first part is (p^-p) and the second part is r  
+(-p^p) is a binary formula. The first part is -p and the second part is p  
+p is a proposition. 
+ pvr is not a formula.  

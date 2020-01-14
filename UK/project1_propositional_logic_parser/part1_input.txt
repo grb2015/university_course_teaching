@@ -1,0 +1,11 @@
+(pv(-p^q))
+-(p^q^r)
+(pv(qvp))
+(-pv-p)
+(p^q)
+(-qv(p^q))
+(p(^q))
+((p^-p)^r)
+(-p^p)
+p
+pvr

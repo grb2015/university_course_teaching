@@ -1,0 +1,10 @@
+(pv(-p^q)) is a binary.  (pv(-p^q)) is satisfiable.
+-(p^q^r) is not a formula.  I told you, -(p^q^r) is not a formula.
+(pv(qvp)) is a binary.  (pv(qvp)) is satisfiable.
+(-pv-p) is a binary.  (-pv-p) is satisfiable.
+(p^q) is a binary.  (p^q) is satisfiable.
+(-qv(p^q)) is a binary.  (-qv(p^q)) is satisfiable.
+(p(^q)) is not a formula.  I told you, (p(^q)) is not a formula.
+((p^-p)^r) is a binary.  ((p^-p)^r) is not satisfiable.
+(-p^p) is a binary.  (-p^p) is not satisfiable.
+(-p^p) is a binary.  (-p^p) is not satisfiable.

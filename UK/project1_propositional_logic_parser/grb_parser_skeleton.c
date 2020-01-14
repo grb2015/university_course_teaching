@@ -9,7 +9,7 @@ bug :
  
 int Fsize=50; /* max string length of formulas*/
 //int inputs=10;
-int inputs=1;  // grb
+int inputs=11;  // grb
 int gNotOk;  // 标志 是否为 formula
  
 int gRecursionDepth = 0 ;   // 递归深度
@@ -189,7 +189,7 @@ int parse(char *g)
 		return formulaVal;
 }
  
-int parenCount[];
+int parenCount[100];
  
 /*
     brief :     为parenCount赋值
@@ -272,7 +272,7 @@ int main(){ /*input 10 strings from "input.txt" */
     /* reads from input.txt, writes to output.txt*/
     char *name = malloc(Fsize);
     FILE *fp, *fpout;
-    if ((  fp=fopen("input.txt","r"))==NULL){printf("Error opening file");exit(1);}
+    if ((  fp=fopen("part1_input.txt","r"))==NULL){printf("Error opening file");exit(1);}
  
     if ((  fpout=fopen("output.txt","w"))==NULL){printf("Error opening file");exit(1);}
  
